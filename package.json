@@ -1,6 +1,5 @@
 {
-  "name": "mud-template-phaser",
-  "private": true,
+  "name": "minesweeper-plus",
   "scripts": {
     "build": "pnpm recursive run build",
     "dev": "concurrently -n contracts,client -c cyan,magenta \"cd packages/contracts && pnpm run dev\" \"cd packages/client && pnpm run dev\"",
