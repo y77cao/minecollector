@@ -14,5 +14,5 @@ interface IPlayerSystem {
 
   function expand(bytes32 player, uint32 x, uint32 y, uint32 width, uint32 height) external;
 
-  function countMines(int32 x, int32 y, int32 width, int32 height) external view returns (uint32);
+  function countMines(uint32 x, uint32 y, uint32 width, uint32 height) external view returns (uint32);
 }

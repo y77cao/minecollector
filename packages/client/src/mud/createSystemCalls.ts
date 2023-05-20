@@ -15,13 +15,15 @@ export function createSystemCalls(
 
   const click = async (x: number, y: number) => {
     if (isCellDisabled(x, y)) {
+      console.warn("Cell is disabled");
       return;
     }
 
     try {
       const tx = await worldSend("click", [x, y]);
       await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
-    } finally {
+    } catch (e) {
+      console.error(e);
     }
   };
 
