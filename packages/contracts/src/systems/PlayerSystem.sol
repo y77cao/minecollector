@@ -6,12 +6,13 @@ import {System} from "@latticexyz/world/src/System.sol";
 import {addressToEntityKey} from "../addressToEntityKey.sol";
 import {positionToEntityKey} from "../positionToEntityKey.sol";
 import {getKeysWithValue} from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import {Player, Position, GridConfig, Disabled, IsMine} from "../codegen/Tables.sol";
+import {
+    Player, Position, GridConfig, Disabled, IsMine, OwnedBy, Points, MineCount, IsMarked
+} from "../codegen/Tables.sol";
 
 contract PlayerSystem is System {
     function click(uint32 x, uint32 y) public {
         bytes32 player = addressToEntityKey(address(_msgSender()));
-        console.log(address(_msgSender()));
 
         require(Disabled.get(player) == false, "player disabled");
         // TODO check joined
@@ -31,15 +32,76 @@ contract PlayerSystem is System {
         if (isMine) {
             lose(player);
         } else {
+            IsMarked.set(position, false);
             expand(player, x, y, width, height, 0);
         }
     }
 
-    function mark(uint32 x, uint32 y) public {}
+    function mark(uint32 x, uint32 y) public {
+        bytes32 player = addressToEntityKey(address(_msgSender()));
+
+        require(Disabled.get(player) == false, "player disabled");
+        // TODO check joined
+
+        (uint32 width, uint32 height,) = GridConfig.get();
+        require(x >= 0 && x < width, "x out of bounds");
+        require(y >= 0 && y < height, "y out of bounds");
+
+        bytes32 position = positionToEntityKey(x, y);
+        require(!Disabled.get(position), "position clicked");
+
+        bool isMarked = IsMarked.get(position);
+        if (isMarked) return;
+        IsMarked.set(position, true);
+
+        bool isMine = IsMine.get(position);
+        if (isMine) {
+            uint32 points = Points.get(player);
+            Points.set(player, points + 2);
+            MineCount.set(player, MineCount.get(player) + 1);
+            IsMine.set(position, false);
+        }
+    }
+
+    function placeMine(uint32 x, uint32 y) public {
+        bytes32 player = addressToEntityKey(address(_msgSender()));
+
+        require(Disabled.get(player) == false, "player disabled");
+        // TODO check joined
+
+        (uint32 width, uint32 height,) = GridConfig.get();
+        require(x >= 0 && x < width, "x out of bounds");
+        require(y >= 0 && y < height, "y out of bounds");
+
+        bytes32 position = positionToEntityKey(x, y);
+        uint32 mineCount = MineCount.get(player);
+        bool isMine = IsMine.get(position);
+        bool disabled = Disabled.get(position);
+        require(!isMine, "mine already there");
+        require(mineCount > 0, "no mines left");
+
+        if (disabled) {
+            Disabled.set(position, false);
+            // blow up area around, clear cell state
+            clear(x - 1, y - 1, width, height);
+            clear(x - 1, y, width, height);
+            clear(x - 1, y + 1, width, height);
+            clear(x, y - 1, width, height);
+            clear(x, y + 1, width, height);
+            clear(x + 1, y - 1, width, height);
+            clear(x + 1, y, width, height);
+            clear(x + 1, y + 1, width, height);
+        } else {
+            IsMine.set(position, true);
+        }
+
+        MineCount.set(player, mineCount - 1);
+    }
 
     function purchase() public {}
 
     function lose(bytes32 player) public {
+        if (Disabled.get(player)) return;
         Disabled.set(player, true);
     }
 
@@ -52,7 +114,12 @@ contract PlayerSystem is System {
         }
         uint32 count = countMines(x, y, width, height);
         Disabled.set(position, true);
-        console.log("count", count, x, y);
+        OwnedBy.set(position, player);
+
+        uint32 points = Points.get(player);
+        Points.set(player, points + 1);
+
+        console.log("expand result", points);
 
         if (count == 0) {
             // Top Left
@@ -88,6 +155,15 @@ contract PlayerSystem is System {
                 expand(player, x - 1, y, width, height, expandCount + 1);
             }
         }
+    }
+
+    function clear(uint32 x, uint32 y, uint32 width, uint32 height) public {
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
+        bytes32 position = positionToEntityKey(x, y);
+        Disabled.set(position, false);
+        OwnedBy.deleteRecord(position);
+        IsMine.deleteRecord(position);
+        IsMarked.deleteRecord(position);
     }
 
     function countMines(uint32 x, uint32 y, uint32 width, uint32 height) public view returns (uint32) {

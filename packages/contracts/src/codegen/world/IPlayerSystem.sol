@@ -8,11 +8,15 @@ interface IPlayerSystem {
 
   function mark(uint32 x, uint32 y) external;
 
+  function placeMine(uint32 x, uint32 y) external;
+
   function purchase() external;
 
   function lose(bytes32 player) external;
 
   function expand(bytes32 player, uint32 x, uint32 y, uint32 width, uint32 height, uint32 expandCount) external;
+
+  function clear(uint32 x, uint32 y, uint32 width, uint32 height) external;
 
   function countMines(uint32 x, uint32 y, uint32 width, uint32 height) external view returns (uint32);
 }

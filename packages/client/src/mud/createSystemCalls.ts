@@ -27,7 +27,32 @@ export function createSystemCalls(
     }
   };
 
+  const mark = async (x: number, y: number) => {
+    if (isCellDisabled(x, y)) {
+      console.warn("Cell is disabled");
+      return;
+    }
+
+    try {
+      const tx = await worldSend("mark", [x, y]);
+      await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const place = async (x: number, y: number) => {
+    try {
+      const tx = await worldSend("placeMine", [x, y]);
+      await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return {
     click,
+    mark,
+    place,
   };
 }

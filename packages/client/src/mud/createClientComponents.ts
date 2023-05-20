@@ -10,5 +10,9 @@ export function createClientComponents({ components }: SetupNetworkResult) {
     Position: overridableComponent(components.Position),
     Disabled: overridableComponent(components.Disabled),
     IsMine: overridableComponent(components.IsMine),
+    IsMarked: overridableComponent(components.IsMarked),
+    OwnedBy: overridableComponent(components.OwnedBy),
+    MineCount: overridableComponent(components.MineCount),
+    Points: overridableComponent(components.Points),
   };
 }

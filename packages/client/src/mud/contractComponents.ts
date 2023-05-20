@@ -67,6 +67,66 @@ export function defineContractComponents(world: World) {
         }
       );
     })(),
+    IsMarked: (() => {
+      const tableId = new TableId("", "IsMarked");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Boolean,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    OwnedBy: (() => {
+      const tableId = new TableId("", "OwnedBy");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    MineCount: (() => {
+      const tableId = new TableId("", "MineCount");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Points: (() => {
+      const tableId = new TableId("", "Points");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
     Position: (() => {
       const tableId = new TableId("", "Position");
       return defineComponent(

@@ -29,6 +29,8 @@ export async function setupNetwork() {
 
   // Request drip from faucet
   const signer = result.network.signer.get();
+  console.info("Signer -> ", signer);
+
   if (networkConfig.faucetServiceUrl && signer) {
     const address = await signer.getAddress();
     console.info("[Dev Faucet]: Player address -> ", address);

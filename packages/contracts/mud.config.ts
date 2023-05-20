@@ -17,6 +17,10 @@ export default mudConfig({
     Player: "bool",
     Disabled: "bool",
     IsMine: "bool",
+    IsMarked: "bool",
+    OwnedBy: "bytes32",
+    MineCount: "uint32",
+    Points: "uint32",
     Position: {
       dataStruct: false,
       schema: {
