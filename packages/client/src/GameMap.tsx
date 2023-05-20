@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Entity } from "@latticexyz/recs";
+import { Entity, Has, getComponentValueStrict } from "@latticexyz/recs";
 import { twMerge } from "tailwind-merge";
+import { useEntityQuery } from "@latticexyz/react";
 
 type Props = {
   width: number;
@@ -11,23 +12,23 @@ type Props = {
     y: number;
     emoji: string;
   }[];
-  players?: {
-    x: number;
-    y: number;
-    emoji: string;
-    entity: Entity;
-  }[];
 };
 
-export const GameMap = ({
-  width,
-  height,
-  onTileClick,
-  cells,
-  players,
-}: Props) => {
+export const GameMap = ({ width, height, onTileClick, cells }: Props) => {
   const rows = new Array(width).fill(0).map((_, i) => i);
   const columns = new Array(height).fill(0).map((_, i) => i);
+
+  const disabledCells = useEntityQuery([Has(Player), Has(Position)]).map(
+    (entity) => {
+      const position = getComponentValueStrict(Position, entity);
+      return {
+        entity,
+        x: position.x,
+        y: position.y,
+        emoji: entity === playerEntity ? "🤠" : "🥸",
+      };
+    }
+  );
 
   return (
     <div className="inline-grid p-2 bg-lime-500 relative overflow-hidden">

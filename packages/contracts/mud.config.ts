@@ -2,7 +2,7 @@ import { mudConfig } from "@latticexyz/world/register";
 
 export default mudConfig({
   enums: {
-    CellType: ["None", "Empty", "Bomb"],
+    CellType: ["None", "Empty", "Mine"],
   },
   tables: {
     GridConfig: {
@@ -15,6 +15,8 @@ export default mudConfig({
       },
     },
     Player: "bool",
+    Disabled: "bool",
+    IsMine: "bool",
     Position: {
       dataStruct: false,
       schema: {

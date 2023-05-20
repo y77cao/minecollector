@@ -5,4 +5,14 @@ pragma solidity >=0.8.0;
 
 interface IPlayerSystem {
   function click(uint32 x, uint32 y) external;
+
+  function mark(uint32 x, uint32 y) external;
+
+  function purchase() external;
+
+  function lose(bytes32 player) external;
+
+  function expand(bytes32 player, uint32 x, uint32 y, uint32 width, uint32 height) external;
+
+  function countMines(int32 x, int32 y, int32 width, int32 height) external view returns (uint32);
 }

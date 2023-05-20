@@ -3,31 +3,17 @@ import { GameMap } from "./GameMap";
 import { useMUD } from "./MUDContext";
 import { useKeyboardMovement } from "./useKeyboardMovement";
 import { hexToArray } from "@latticexyz/utils";
-import { TerrainType, terrainTypes } from "./terrainTypes";
-import { EncounterScreen } from "./EncounterScreen";
+import { CellType, cellTypes } from "./cellTypes";
 import { Entity, Has, getComponentValueStrict } from "@latticexyz/recs";
-import { MonsterType, monsterTypes } from "./monsterTypes";
 
 export const GameBoard = () => {
   useKeyboardMovement();
 
   const {
-    components: { GridConfig, Player, Position },
+    components: { GridConfig, Player, Position, Disabled },
     network: { playerEntity, singletonEntity },
-    systemCalls: { spawn },
+    systemCalls: { click },
   } = useMUD();
-
-  const canSpawn = useComponentValue(Player, playerEntity)?.value !== true;
-
-  const players = useEntityQuery([Has(Player), Has(Position)]).map((entity) => {
-    const position = getComponentValueStrict(Position, entity);
-    return {
-      entity,
-      x: position.x,
-      y: position.y,
-      emoji: entity === playerEntity ? "🤠" : "🥸",
-    };
-  });
 
   const gridConfig = useComponentValue(GridConfig, singletonEntity);
   if (gridConfig == null) {
@@ -36,23 +22,54 @@ export const GameBoard = () => {
     );
   }
 
-  const { width, height, cellType: cellTypes } = gridConfig;
-  const cells = Array.from(hexToArray(cellTypes)).map((value, index) => {
-    const { emoji } =
-      value in TerrainType ? terrainTypes[value as TerrainType] : { emoji: "" };
-    return {
-      x: index % width,
-      y: Math.floor(index / width),
-      emoji,
-    };
-  });
+  const { width, height, cellType: cells } = gridConfig;
+  const coordToType = Array.from(hexToArray(cells)).reduce(
+    (result, value, index) => {
+      const type = CellType[value];
+      const key = `${index % width},${Math.floor(index / width)}`;
+      return {
+        ...result,
+        [key]: type,
+      };
+    },
+    {}
+  );
+
+  const rows = new Array(width).fill(0).map((_, i) => i);
+  const columns = new Array(height).fill(0).map((_, i) => i);
+
+  const disabledCoords = useEntityQuery([Has(Disabled), Has(Position)]).map(
+    (entity) => {
+      const position = getComponentValueStrict(Position, entity);
+      const key = `${position.x},${position.y}`;
+      return key;
+    }
+  );
+
+  console.log({ coordToType, disabledCoords });
+
   return (
-    <GameMap
-      width={width}
-      height={height}
-      cells={cells}
-      onTileClick={() => {}}
-      players={players}
-    />
+    <div className="inline-grid p-2 bg-lime-500 relative overflow-hidden">
+      {rows.map((y) =>
+        columns.map((x) => {
+          return (
+            <div
+              key={`${x},${y}`}
+              className={twMerge(
+                "w-8 h-8 flex items-center justify-center",
+                onTileClick ? "cursor-pointer hover:ring" : null
+              )}
+              style={{
+                gridColumn: x + 1,
+                gridRow: y + 1,
+              }}
+              onClick={() => {
+                onTileClick?.(x, y);
+              }}
+            ></div>
+          );
+        })
+      )}
+    </div>
   );
 };
