@@ -12,7 +12,7 @@ interface IPlayerSystem {
 
   function lose(bytes32 player) external;
 
-  function expand(bytes32 player, uint32 x, uint32 y, uint32 width, uint32 height) external;
+  function expand(bytes32 player, uint32 x, uint32 y, uint32 width, uint32 height, uint32 expandCount) external;
 
   function countMines(uint32 x, uint32 y, uint32 width, uint32 height) external view returns (uint32);
 }

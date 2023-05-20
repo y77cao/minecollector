@@ -31,7 +31,7 @@ contract PlayerSystem is System {
         if (isMine) {
             lose(player);
         } else {
-            expand(player, x, y, width, height);
+            expand(player, x, y, width, height, 0);
         }
     }
 
@@ -43,44 +43,49 @@ contract PlayerSystem is System {
         Disabled.set(player, true);
     }
 
-    function expand(bytes32 player, uint32 x, uint32 y, uint32 width, uint32 height) public {
+    function expand(bytes32 player, uint32 x, uint32 y, uint32 width, uint32 height, uint32 expandCount) public {
         console.log("expand");
         bytes32 position = positionToEntityKey(x, y);
+        // expandCount limiting gas, only go 3 levels deep
+        if (Disabled.get(position) || IsMine.get(position) || expandCount > 3) {
+            return;
+        }
         uint32 count = countMines(x, y, width, height);
         Disabled.set(position, true);
+        console.log("count", count, x, y);
 
         if (count == 0) {
             // Top Left
-            if (x > 0 && y > 0 && !Disabled.get(position)) {
-                expand(player, x - 1, y - 1, width, height);
+            if (x > 0 && y > 0) {
+                expand(player, x - 1, y - 1, width, height, expandCount + 1);
             }
             // Top
-            if (y > 0 && !Disabled.get(position)) {
-                expand(player, x, y - 1, width, height);
+            if (y > 0) {
+                expand(player, x, y - 1, width, height, expandCount + 1);
             }
             // Top Right
-            if (x < width - 1 && y > 0 && !Disabled.get(position)) {
-                expand(player, x + 1, y - 1, width, height);
+            if (x < width - 1 && y > 0) {
+                expand(player, x + 1, y - 1, width, height, expandCount + 1);
             }
             // Right
-            if (x < width - 1 && !Disabled.get(position)) {
-                expand(player, x + 1, y, width, height);
+            if (x < width - 1) {
+                expand(player, x + 1, y, width, height, expandCount + 1);
             }
             // Bottom Right
-            if (x < width - 1 && y < height - 1 && !Disabled.get(position)) {
-                expand(player, x + 1, y + 1, width, height);
+            if (x < width - 1 && y < height - 1) {
+                expand(player, x + 1, y + 1, width, height, expandCount + 1);
             }
             // Bottom
-            if (y < height - 1 && !Disabled.get(position)) {
-                expand(player, x, y + 1, width, height);
+            if (y < height - 1) {
+                expand(player, x, y + 1, width, height, expandCount + 1);
             }
             // Bottom Left
-            if (x > 0 && y < height - 1 && !Disabled.get(position)) {
-                expand(player, x - 1, y + 1, width, height);
+            if (x > 0 && y < height - 1) {
+                expand(player, x - 1, y + 1, width, height, expandCount + 1);
             }
             // Left
-            if (x > 0 && !Disabled.get(position)) {
-                expand(player, x - 1, y, width, height);
+            if (x > 0) {
+                expand(player, x - 1, y, width, height, expandCount + 1);
             }
         }
     }

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 import {CellType} from "../src/codegen/Types.sol";
-import {Position, GridConfig, IsMine} from "../src/codegen/Tables.sol";
+import {Position, GridConfig, IsMine, Disabled} from "../src/codegen/Tables.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {positionToEntityKey} from "../src/positionToEntityKey.sol";
 
@@ -25,8 +25,8 @@ contract PostDeploy is Script {
         CellType[20][20] memory grid = [
             [O, O, O, O, O, O, E, O, O, O, O, O, O, O, O, O, O, O, O, O],
             [O, O, E, O, E, E, E, E, E, O, O, O, O, B, O, O, O, O, O, O],
-            [O, E, E, E, E, B, E, E, E, E, E, E, E, E, E, E, E, O, O, O],
-            [O, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, O, O],
+            [O, E, E, E, E, B, E, E, B, E, E, E, E, E, E, E, E, O, O, O],
+            [O, E, E, E, E, E, E, B, E, E, E, E, E, E, E, E, E, E, O, O],
             [O, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, O, O],
             [O, E, E, E, E, E, E, E, E, E, B, E, E, E, E, E, E, O, O, O],
             [O, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, O, O, O],
@@ -52,12 +52,13 @@ contract PostDeploy is Script {
         for (uint32 y = 0; y < height; y++) {
             for (uint32 x = 0; x < width; x++) {
                 CellType cellType = grid[y][x];
-                if (cellType == CellType.None) continue;
 
                 gridContent[(y * width) + x] = bytes1(uint8(cellType));
 
                 bytes32 entity = positionToEntityKey(x, y);
-                if (cellType == CellType.Empty) {
+                if (cellType == CellType.None) {
+                    Disabled.set(world, entity, true);
+                } else if (cellType == CellType.Empty) {
                     Position.set(world, entity, x, y);
                 } else if (cellType == CellType.Mine) {
                     IsMine.set(world, entity, true);
