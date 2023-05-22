@@ -6,9 +6,7 @@ import {System} from "@latticexyz/world/src/System.sol";
 import {addressToEntityKey} from "../addressToEntityKey.sol";
 import {positionToEntityKey} from "../positionToEntityKey.sol";
 import {getKeysWithValue} from "@latticexyz/world/src/modules/keyswithvalue/getKeysWithValue.sol";
-import {
-    Player, Position, GridConfig, Disabled, IsMine, OwnedBy, Points, MineCount, IsMarked
-} from "../codegen/Tables.sol";
+import {Position, GridConfig, Disabled, IsMine, OwnedBy, Points, MineCount, IsMarked} from "../codegen/Tables.sol";
 
 contract PlayerSystem is System {
     function click(uint32 x, uint32 y) public {

@@ -11,20 +11,12 @@ import {
 } from "@latticexyz/recs";
 import { useState } from "react";
 
-export const GameBoard = () => {
+export const GameBoard = ({ players }: { players: Entity }) => {
   useKeyboardMovement();
 
   const [placeMine, setPlaceMine] = useState(false);
   const {
-    components: {
-      GridConfig,
-      Player,
-      Position,
-      Disabled,
-      IsMarked,
-      Points,
-      MineCount,
-    },
+    components: { GridConfig, Position, Disabled, IsMarked, Points, MineCount },
     network: { playerEntity, singletonEntity },
     systemCalls: { click, mark, place },
   } = useMUD();

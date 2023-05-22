@@ -1,12 +1,15 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { SyncState } from "@latticexyz/network";
 import { useMUD } from "./MUDContext";
 import { GameBoard } from "./GameBoard";
+import { HasValue } from "@latticexyz/recs";
+import { Menu } from "./Menu";
 
 export const App = () => {
   const {
     components: { LoadingState },
-    network: { singletonEntity },
+    network: { playerEntity, singletonEntity },
+    systemCalls: {},
   } = useMUD();
 
   const loadingState = useComponentValue(LoadingState, singletonEntity, {

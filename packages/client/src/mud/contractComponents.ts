@@ -22,21 +22,6 @@ export function defineContractComponents(world: World) {
         }
       );
     })(),
-    Player: (() => {
-      const tableId = new TableId("", "Player");
-      return defineComponent(
-        world,
-        {
-          value: RecsType.Boolean,
-        },
-        {
-          metadata: {
-            contractId: tableId.toHexString(),
-            tableId: tableId.toString(),
-          },
-        }
-      );
-    })(),
     Disabled: (() => {
       const tableId = new TableId("", "Disabled");
       return defineComponent(

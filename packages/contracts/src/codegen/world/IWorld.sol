@@ -6,12 +6,11 @@ pragma solidity >=0.8.0;
 import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 import { IPlayerSystem } from "./IPlayerSystem.sol";
-import { IRoomSystem } from "./IRoomSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IPlayerSystem, IRoomSystem {
+interface IWorld is IBaseWorld, IPlayerSystem {
 
 }
