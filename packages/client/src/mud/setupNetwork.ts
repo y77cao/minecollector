@@ -94,6 +94,7 @@ export async function setupNetwork() {
   return {
     ...result,
     worldContract,
+    roomId: networkConfig.roomId,
     worldSend,
     fastTxExecutor,
   };

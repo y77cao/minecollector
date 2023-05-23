@@ -9,6 +9,7 @@ const worlds = worldsJson as Partial<
 type NetworkConfig = SetupContractConfig & {
   privateKey: string;
   faucetServiceUrl?: string;
+  roomId: string;
 };
 
 export async function getNetworkConfig(): Promise<NetworkConfig> {
@@ -31,6 +32,11 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     );
   }
 
+  const roomId = params.get("roomId");
+  if (!roomId) {
+    throw new Error(`No room id found for chain ${chainId}.`);
+  }
+
   const initialBlockNumber = params.has("initialBlockNumber")
     ? Number(params.get("initialBlockNumber"))
     : world?.blockNumber ?? -1; // -1 will attempt to find the block number from RPC
@@ -51,6 +57,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     modeUrl: params.get("mode") ?? chain.modeUrl,
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
+    roomId,
     initialBlockNumber,
     disableCache: params.get("cache") === "false",
   };

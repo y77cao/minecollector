@@ -22,6 +22,21 @@ export function defineContractComponents(world: World) {
         }
       );
     })(),
+    RoomMap: (() => {
+      const tableId = new TableId("", "RoomMap");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
     Disabled: (() => {
       const tableId = new TableId("", "Disabled");
       return defineComponent(

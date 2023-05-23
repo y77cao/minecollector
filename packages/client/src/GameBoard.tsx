@@ -2,31 +2,41 @@ import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
 import { useKeyboardMovement } from "./useKeyboardMovement";
 import { hexToArray } from "@latticexyz/utils";
-import { CellType, cellContent } from "./constants";
+import { CellType, cellContent, playerColors } from "./constants";
 import {
   Entity,
   Has,
   HasValue,
+  getComponentValue,
   getComponentValueStrict,
 } from "@latticexyz/recs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export const GameBoard = ({ players }: { players: Entity }) => {
+export const GameBoard = ({
+  gridConfig,
+}: {
+  gridConfig: {
+    width: number;
+    height: number;
+    cellType: string[];
+  };
+}) => {
   useKeyboardMovement();
 
   const [placeMine, setPlaceMine] = useState(false);
   const {
-    components: { GridConfig, Position, Disabled, IsMarked, Points, MineCount },
-    network: { playerEntity, singletonEntity },
+    components: {
+      Position,
+      Disabled,
+      IsMarked,
+      Points,
+      MineCount,
+      OwnedBy,
+      RoomMap,
+    },
+    network: { playerEntity, singletonEntity, roomId },
     systemCalls: { click, mark, place },
   } = useMUD();
-
-  const gridConfig = useComponentValue(GridConfig, singletonEntity);
-  if (gridConfig == null) {
-    throw new Error(
-      "map config not set or not ready, only use this hook after loading state === LIVE"
-    );
-  }
 
   const { width, height, cellType: cells } = gridConfig;
 
@@ -45,22 +55,26 @@ export const GameBoard = ({ players }: { players: Entity }) => {
   const disabledCoords = useEntityQuery([
     HasValue(Disabled, { value: true }),
     Has(Position),
-  ]).map((entity) => {
+    HasValue(RoomMap, { value: roomId }),
+  ]).reduce((keyToOwnedBy: Record<string, string>, entity: Entity) => {
     const position = getComponentValueStrict(Position, entity);
+    const ownedBy = getComponentValue(OwnedBy, entity)?.value;
     const key = `${position.x},${position.y}`;
-    return key;
-  });
+    keyToOwnedBy[key] = ownedBy;
+    return keyToOwnedBy;
+  }, {});
 
   const markedCoords = useEntityQuery([
     HasValue(IsMarked, { value: true }),
     Has(Position),
+    HasValue(RoomMap, { value: roomId }),
   ]).map((entity) => {
     const position = getComponentValueStrict(Position, entity);
     const key = `${position.x},${position.y}`;
     return key;
   });
 
-  const disabledCoordsSet = new Set(disabledCoords);
+  const players = [...new Set(Object.values(disabledCoords))];
   const markedCoordsSet = new Set(markedCoords);
 
   const finalGridState = new Array(width)
@@ -70,12 +84,13 @@ export const GameBoard = ({ players }: { players: Entity }) => {
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const key = `${j},${i}`;
-      finalGridState[i][j] = coordToType[key];
-      if (disabledCoordsSet.has(key)) {
-        finalGridState[i][j] = CellType.Disabled;
+      finalGridState[i][j] = cellContent[coordToType[key]];
+      if (disabledCoords[key]) {
+        finalGridState[i][j] =
+          playerColors[players.indexOf(disabledCoords[key])];
       }
       if (markedCoordsSet.has(key)) {
-        finalGridState[i][j] = CellType.Marked;
+        finalGridState[i][j] = cellContent[CellType.Marked];
       }
     }
   }
@@ -89,7 +104,7 @@ export const GameBoard = ({ players }: { players: Entity }) => {
               <div
                 key={`${x},${y}`}
                 className={
-                  "w-8 h-8 flex items-center justify-center cursor-pointer hover:ring"
+                  "w-8 h-8 flex items-center justify-center cursor-pointer hover:ring text-xl"
                 }
                 style={{
                   gridColumn: x + 1,
@@ -123,7 +138,7 @@ export const GameBoard = ({ players }: { players: Entity }) => {
                   }
                 }}
               >
-                {cellContent[cell]}
+                {cell}
               </div>
             );
           })

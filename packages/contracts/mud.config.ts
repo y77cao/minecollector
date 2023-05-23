@@ -6,7 +6,6 @@ export default mudConfig({
   },
   tables: {
     GridConfig: {
-      keySchema: {},
       dataStruct: false,
       schema: {
         width: "uint32",
@@ -14,6 +13,7 @@ export default mudConfig({
         cellType: "bytes",
       },
     },
+    RoomMap: "bytes32",
     Disabled: "bool",
     IsMine: "bool",
     IsMarked: "bool",

@@ -8,8 +8,10 @@ export enum CellType {
 
 export const cellContent: Record<CellType, string> = {
   [CellType.Null]: "",
-  [CellType.Empty]: "🟦",
+  [CellType.Empty]: "⬜",
   [CellType.Mine]: "💣",
-  [CellType.Disabled]: "⬜",
+  [CellType.Disabled]: "🟦",
   [CellType.Marked]: "🚩",
 };
+
+export const playerColors = ["🟥", "🟨", "🟩", "🟦"];
